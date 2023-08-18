@@ -2,9 +2,9 @@
   "name": "base-conhecimento-api",
   "version": "0.0.1",
   "description": "",
-  "author": "João Vítor O. Ferreira",
+  "author": "PGE RJ",
   "private": true,
-  "license": "Cedido a PGE-RJ",
+  "license": "",
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

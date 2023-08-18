@@ -25,6 +25,19 @@ export class EventService {
     return await this.eventModel.find().exec();
   }
 
+  async getAllPostsAndEvents(): Promise<any[]> {
+    const posts = await this.postModel
+      .find()
+      .sort({ dataPost: 'ascending' })
+      .exec();
+    const events = await this.eventModel
+      .find()
+      .sort({ dataEvento: 'ascending' })
+      .exec();
+    const postsAndEvents = [...posts, ...events];
+    return postsAndEvents;
+  }
+
   async getEventById(eventId: string): Promise<Evento | null> {
     return await this.eventModel.findOne({ id: eventId });
   }
@@ -148,7 +161,7 @@ export class EventService {
     userId: string,
   ): Promise<boolean> {
     const eventToDelete = await this.eventModel.findOne({ id: eventId });
-    if (!isPGEAdmin || eventToDelete?.donoEvento !== userId) {
+    if (!isPGEAdmin || eventToDelete?.donoEvento.id !== userId) {
       throw new ForbiddenException();
     }
     const postToDelete = await this.eventModel.findOneAndDelete(

@@ -15,7 +15,7 @@ export interface Post {
 
 export interface Evento {
   id: string;
-  donoEvento: string;
+  donoEvento: Usuario;
   dataInicioEvento: Date;
   dataFimEvento: Date;
   horarioInicio: Date;

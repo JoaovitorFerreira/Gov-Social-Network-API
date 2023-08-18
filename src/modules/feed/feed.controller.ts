@@ -14,22 +14,22 @@ export class FeedController {
   constructor(private readonly eventService: EventService) {}
 
   @Post('criar-evento')
-  CreateEvent(@Body() evento: Evento): Promise<Evento> {
+  async createEvent(@Body() evento: Evento): Promise<Evento> {
     return this.eventService.createEvent(false, evento);
   }
   @Post('criar-post')
-  CreatePost(@Body() post: Posts): Promise<Posts> {
+  async createPost(@Body() post: Posts): Promise<Posts> {
     return this.eventService.createPost(false, post);
   }
   @Post('criar-comentario')
-  createComment(
+  async createComment(
     @Body() comentario: ComentarioPost,
     postId: string,
   ): Promise<boolean> {
     return this.eventService.createComment(comentario, postId);
   }
   @Post('participar')
-  joinEvent(
+  async joinEvent(
     @Body() eventId: string,
     user: Usuario,
     isJoining: boolean,
@@ -37,15 +37,15 @@ export class FeedController {
     return this.eventService.joinEvent(eventId, user, isJoining);
   }
   @Put('editar-evento')
-  editEvent(@Body() evento: Evento): Promise<boolean> {
+  async editEvent(@Body() evento: Evento): Promise<boolean> {
     return this.eventService.updateEvent(false, evento);
   }
   @Put('editar-post')
-  editPost(@Body() post: Posts): Promise<boolean> {
+  async editPost(@Body() post: Posts): Promise<boolean> {
     return this.eventService.updatePost(false, post);
   }
   @Put('editar-comentario')
-  editComment(
+  async editComment(
     @Body() comentario: ComentarioPost,
     postId: string,
   ): Promise<boolean> {
@@ -60,7 +60,7 @@ export class FeedController {
     return this.eventService.deletePost(false, postId, userId);
   }
   @Delete('deletar-comentario')
-  deleteComment(
+  async deleteComment(
     @Body() commentId: string,
     userId: string,
     postId: string,

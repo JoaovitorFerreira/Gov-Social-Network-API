@@ -60,7 +60,6 @@ export class AuthService {
       const password = hashSync(userToChangePass.passToChange, 12);
       user.password = password;
       user.firstAccess = false;
-      console.log(user);
       const updatedUser = await this.userService.updateUser(user);
       return updatedUser;
     }
