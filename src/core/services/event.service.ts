@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common';
 import { Evento, Post, ComentarioPost } from '../model/events.model';
 import { Usuario } from '../model/user.model';
-
+import { v4 as uuidv4 } from 'uuid';
 @Injectable()
 export class EventService {
   constructor(
@@ -76,29 +76,46 @@ export class EventService {
   }
 
   async createPost(isPGEAdmin: boolean, post: Post): Promise<Post> {
-    return await this.postModel.create({ ...post, postRh: isPGEAdmin });
+    const getDate = new Date(post.dataPost).toISOString();
+    const newUid = uuidv4();
+    const newPost = {
+      ...post,
+      id: newUid,
+      postRh: isPGEAdmin,
+      dataPost: getDate,
+      evento:
+        post.evento == null || post.evento == undefined ? null : post.evento,
+    };
+    return await this.postModel.create(newPost);
   }
 
   async createComment(
     comentario: ComentarioPost,
-    postId: string,
+    id: string,
   ): Promise<boolean> {
-    const post = await this.postModel.findOne({ id: postId });
-    const listaComentarios = post?.comentarios
-      ? [...post?.comentarios, comentario]
-      : [comentario];
-
-    const postUpdated = this.postModel.findOneAndUpdate(
-      { id: postId },
-      { ...post, comentarios: listaComentarios },
-      (err: any) => {
-        if (err) {
-          console.log(err);
-          throw new InternalServerErrorException();
-        }
-      },
-    );
-    return postUpdated !== null || postUpdated == true ? true : false;
+    const postFound = await this.postModel.findOne({ id }).exec();
+    if (postFound) {
+      const newUid = uuidv4();
+      const newComment: ComentarioPost = {
+        id: newUid,
+        ...comentario,
+      };
+      const listaComentarios =
+        postFound.comentarios == undefined
+          ? [newComment]
+          : [...postFound.comentarios, newComment];
+      const postUpdated = await this.postModel
+        .findOneAndUpdate(
+          { id },
+          {
+            comentarios: listaComentarios,
+          },
+        )
+        .exec();
+      return postUpdated !== null;
+    } else {
+      throw new NotFoundException('nao encontrado');
+    }
   }
 
   async updateEvent(isPGEAdmin: boolean, event: Evento): Promise<boolean> {
@@ -186,6 +203,11 @@ export class EventService {
       console.log(err);
       throw new InternalServerErrorException();
     });
+    return postToDelete !== null || postToDelete == true ? true : false;
+  }
+
+  async deleteAllPosts() {
+    const postToDelete = await this.postModel.deleteMany();
     return postToDelete !== null || postToDelete == true ? true : false;
   }
 

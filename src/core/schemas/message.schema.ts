@@ -20,4 +20,9 @@ export const MessageSchema = new mongoose.Schema<MessageChat>({
     timestamp: Date,
   },
   usersName: [String],
+  responseUser: String,
+  requestUser: String,
+  requestUserId: String,
+  responseUserId: String,
+  hasNewMsg: Boolean,
 });

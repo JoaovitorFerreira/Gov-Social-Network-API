@@ -7,16 +7,12 @@ export class MessageChat {
   usersId: string[];
   lastMsg?: ChatMessage;
   usersName: string[];
-}
-
-/*export class OnlineSystemMessage extends Message {
   responseUser: string;
-  responseId: string;
   requestUser: string;
-  requestId: string;
-  hasNewMsg?: boolean;
+  requestUserId: string;
+  responseUserId: string;
+  hasNewMsg: boolean;
 }
-*/
 
 export class ChatMessage {
   userName: string;

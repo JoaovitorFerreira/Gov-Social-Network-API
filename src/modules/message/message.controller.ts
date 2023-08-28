@@ -1,4 +1,12 @@
-import { Controller, Body, Post, UseGuards, Get, Param } from '@nestjs/common';
+import {
+  Controller,
+  Body,
+  Post,
+  UseGuards,
+  Delete,
+  Get,
+  Param,
+} from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guards';
 import { MessageService } from 'src/core/services/message.service';
 import { CreateChatUserData } from 'src/core/model/user.model';
@@ -17,8 +25,8 @@ export class MessageController {
   async createChat(@Body() chatUserData: CreateChatUserData): Promise<boolean> {
     return this.messageService.createMessageChat(chatUserData);
   }
-  @Get('chats')
-  async getAllChatsByUser(@Body() userId: string): Promise<MessageChat[]> {
+  @Get('chats/:id')
+  async getAllChatsByUser(@Param('id') userId: string): Promise<MessageChat[]> {
     return this.messageService.getAllChatsByUser(userId);
   }
   @Get(':id')
@@ -26,10 +34,9 @@ export class MessageController {
     return this.messageService.getChatByChatId(id);
   }
 
-  /*apenas teste
-  @Get()
-  async getAllChats() {
-    return this.messageService.getAllChats();
+  //nao usar
+  @Delete('delete-all')
+  async deleteAllPosts(): Promise<boolean> {
+    return this.messageService.deleteAllMsgs();
   }
-  */
 }

@@ -1,6 +1,10 @@
 import { Model } from 'mongoose';
-import { Inject, Injectable } from '@nestjs/common';
-import { MessageChat } from '../model/message.model';
+import {
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+} from '@nestjs/common';
+import { ChatMessage, MessageChat } from '../model/message.model';
 import { CreateChatUserData } from '../model/user.model';
 
 @Injectable()
@@ -23,6 +27,11 @@ export class MessageService {
       createdAt: getDate.toISOString(),
       usersId: [chatUserData.reqUserId, chatUserData.resUserId],
       usersName: [chatUserData.reqUsername, chatUserData.resUsername],
+      responseUser: chatUserData.resUsername,
+      requestUser: chatUserData.reqUsername,
+      requestUserId: chatUserData.reqUserId,
+      responseUserId: chatUserData.resUserId,
+      hasNewMsg: false,
     };
     try {
       await this.messageModel.create(chatToCreate);
@@ -42,5 +51,29 @@ export class MessageService {
   }
   async getAllChats(): Promise<MessageChat[]> {
     return await this.messageModel.find().exec();
+  }
+  async deleteAllMsgs(): Promise<boolean> {
+    const msgsToDelete = await this.messageModel.deleteMany();
+    return msgsToDelete !== null || msgsToDelete == true ? true : false;
+  }
+  async updateMsgChat(chatId: string, newMsg: ChatMessage): Promise<boolean> {
+    const chatFound = await this.messageModel.findOne({ msgId: chatId }).exec();
+    if (!chatFound) {
+      throw new InternalServerErrorException(
+        'ERRO AO CONECTAR AO BANCO -- CONEXAO AO DOCUMENTO DE MENSAGEM',
+      );
+    } else {
+      const listaChat =
+        chatFound.chat == undefined || chatFound.chat.length == 0
+          ? [newMsg]
+          : [...chatFound.chat, newMsg];
+      const updatedChat = await this.messageModel
+        .findOneAndUpdate(
+          { msgId: chatId },
+          { chat: listaChat, lastMsg: newMsg, hasNewMsg: true },
+        )
+        .exec();
+      return updatedChat !== null || updatedChat == true ? true : false;
+    }
   }
 }

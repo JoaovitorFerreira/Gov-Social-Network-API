@@ -11,6 +11,7 @@ export interface Post {
   imagensAnexadas?: string;
   evento?: Evento;
   postRh: boolean;
+  isEvento: boolean;
 }
 
 export interface Evento {
@@ -42,4 +43,9 @@ export interface ComentarioPost {
   comentario: string;
   dataComentario: Date;
   id?: string;
+}
+
+export interface ComentarioDto {
+  comentario: ComentarioPost;
+  id: string;
 }

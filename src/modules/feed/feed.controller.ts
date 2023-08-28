@@ -1,17 +1,21 @@
 import { Body, Controller, Delete, Post, Put, UseGuards } from '@nestjs/common';
 import {
   Evento,
-  ComentarioPost,
   Post as Posts,
+  ComentarioDto,
 } from 'src/core/model/events.model';
 import { Usuario } from 'src/core/model/user.model';
 import { EventService } from 'src/core/services/event.service';
 import { AuthGuard } from '../auth/auth.guards';
+import { FeedGateway } from './feed.ws.gateway';
 
 @UseGuards(AuthGuard)
 @Controller('feed')
 export class FeedController {
-  constructor(private readonly eventService: EventService) {}
+  constructor(
+    private readonly eventService: EventService,
+    private readonly feedGateway: FeedGateway,
+  ) {}
 
   @Post('criar-evento')
   async createEvent(@Body() evento: Evento): Promise<Evento> {
@@ -19,14 +23,20 @@ export class FeedController {
   }
   @Post('criar-post')
   async createPost(@Body() post: Posts): Promise<Posts> {
-    return this.eventService.createPost(false, post);
+    const createPost = await this.eventService
+      .createPost(false, post)
+      .then((result: Posts) => {
+        this.feedGateway.sendUpdateSignal(result);
+        return result;
+      });
+    return createPost;
   }
   @Post('criar-comentario')
   async createComment(
-    @Body() comentario: ComentarioPost,
-    postId: string,
+    @Body()
+    dto: ComentarioDto,
   ): Promise<boolean> {
-    return this.eventService.createComment(comentario, postId);
+    return this.eventService.createComment(dto.comentario, dto.id);
   }
   @Post('participar')
   async joinEvent(
@@ -45,16 +55,20 @@ export class FeedController {
     return this.eventService.updatePost(false, post);
   }
   @Put('editar-comentario')
-  async editComment(
-    @Body() comentario: ComentarioPost,
-    postId: string,
-  ): Promise<boolean> {
-    return this.eventService.updateComment(comentario, postId);
+  async editComment(@Body() dto: ComentarioDto): Promise<boolean> {
+    return this.eventService.updateComment(dto.comentario, dto.id);
   }
   @Delete('deletar-evento')
   async deleteEvent(@Body() eventId: string, userId: string): Promise<boolean> {
     return this.eventService.deleteEvent(false, eventId, userId);
   }
+
+  //nao usar
+  @Delete('delete-all')
+  async deleteAllPosts(): Promise<boolean> {
+    return this.eventService.deleteAllPosts();
+  }
+
   @Delete('deletar-post')
   async deletePost(@Body() postId: string, userId: string): Promise<boolean> {
     return this.eventService.deletePost(false, postId, userId);
